@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>The Organic Editorial | Banana Ripeness Predictor</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "outline-variant": "#d8c3ad",
+              background: "#fbfaee",
+              "surface-dim": "#dbdbcf",
+              error: "#ba1a1a",
+              "on-tertiary-fixed-variant": "#76330d",
+              "on-primary-fixed-variant": "#653e00",
+              "error-container": "#ffdad6",
+              "tertiary-fixed": "#ffdbcc",
+              surface: "#fbfaee",
+              "surface-container-high": "#e9e9dd",
+              tertiary: "#944a23",
+              "primary-fixed": "#ffddb8",
+              "surface-tint": "#855300",
+              "tertiary-fixed-dim": "#ffb693",
+              "surface-container-low": "#f5f4e8",
+              "on-secondary-fixed-variant": "#005236",
+              "on-secondary-fixed": "#002113",
+              "surface-bright": "#fbfaee",
+              "on-background": "#1b1c15",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary": "#ffffff",
+              "on-primary-fixed": "#2a1700",
+              "on-error": "#ffffff",
+              primary: "#855300",
+              "secondary-container": "#6cf8bb",
+              "on-error-container": "#93000a",
+              outline: "#867461",
+              "secondary-fixed": "#6ffbbe",
+              "on-secondary-container": "#00714d",
+              "on-primary": "#ffffff",
+              "on-surface": "#1b1c15",
+              "primary-fixed-dim": "#ffb95f",
+              "primary-container": "#f59e0b",
+              "on-primary-container": "#613b00",
+              "surface-container": "#efeee3",
+              "on-tertiary-fixed": "#351000",
+              "surface-container-highest": "#e4e3d7",
+              "inverse-on-surface": "#f2f1e5",
+              "on-tertiary-container": "#72300a",
+              "secondary-fixed-dim": "#4edea3",
+              "on-surface-variant": "rgba(27, 28, 21, 0.68)",
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+            fontFamily: {
+              headline: ["Noto Serif"],
+              body: ["Manrope"],
+              label: ["Manrope"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+      }
+      .editorial-gradient {
+        background: linear-gradient(135deg, #f59e0b 0%, #855300 100%);
+        position: relative;
+      }
+      .editorial-gradient::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuBKZ2d8uD7ykJ_B_JFxjsqwYop6aTHFRC3IpRf7TpX_RXycH4u_QAEGsQEmT61zdNFFyRyHsBW6RsatWuyX7OCeoLnUnhEyhsnYR4_thw1K_CUaMUG-9aaApLGXPCsPoWm75z90PrpV1pzt_Ry4D42uG5EagABzJw3yPTOgDe2hTj0mFJCuCwOsJLhgQtJx30OV_-Dj0dX9tK6b0Gr2PbEXNMEo3Eg-RqJHeogvBAbSrEJBYiq5y8GlWcNQ2zME6U6WyZsRIWR1ZZOr);
+        opacity: 0.15;
+        pointer-events: none;
+      }
+      .drop-active {
+        border-color: #855300 !important;
+        background: rgba(245, 158, 11, 0.08);
+      }
+      .result-enter {
+        animation: result-fade 0.5s ease-out;
+      }
+      @keyframes result-fade {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container"
+  >
+    <nav
+      class="fixed top-0 w-full z-50 flex justify-between items-center px-8 py-6 max-w-screen-2xl mx-auto bg-[#fbfaee]"
+    >
+      <div class="text-2xl font-serif italic text-[#855300]">The Organic Editorial</div>
+      <div class="hidden md:flex gap-8 items-center">
+        <a
+          class="nav-link text-[#855300] font-bold border-b-2 border-[#855300] font-label text-sm uppercase tracking-tight"
+          href="#predictor"
+          data-section="predictor"
+          >Predictor</a
+        >
+        <a
+          class="nav-link text-[#1b1c15]/60 hover:text-[#855300] transition-colors duration-300 font-label text-sm uppercase tracking-tight"
+          href="#methodology"
+          data-section="methodology"
+          >Methodology</a
+        >
+      </div>
+      <div class="flex gap-4">
+        <button
+          class="material-symbols-outlined text-[#855300] hover:scale-95 duration-200 ease-in-out"
+          data-icon="refresh"
+          id="reset-button"
+          title="Refresh analysis"
+          type="button"
+        >
+          refresh
+        </button>
+      </div>
+    </nav>
+    <main class="pt-24">
+      <section
+        class="px-8 md:px-24 py-16 md:py-32 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center overflow-hidden"
+      >
+        <div class="lg:col-span-7 z-10">
+          <span class="font-label text-xs uppercase tracking-widest text-primary mb-4 block"
+            >Volume I | Kela </span
+          >
+          <h1 class="font-headline text-6xl md:text-8xl text-on-surface leading-tight mb-8">
+            The Science of <span class="italic text-primary">Ripeness.</span>
+          </h1>
+          <p class="text-lg md:text-xl text-on-surface-variant max-w-xl leading-relaxed mb-12">
+            Predicting banana quality with AI-powered agricultural intelligence. We translate
+            organic decay into precise chemical narratives for the discerning palate.
+          </p>
+          <div class="flex gap-6">
+            <a
+              class="bg-primary text-on-primary px-8 py-4 rounded-xl font-bold tracking-tight hover:shadow-xl transition-all duration-300 active:scale-95"
+              href="#predictor"
+              >Start Analysis</a
+            >
+            <a class="flex items-center gap-2 font-bold text-primary group" href="#methodology">
+              Watch Process
+              <span
+                class="material-symbols-outlined group-hover:translate-x-1 transition-transform"
+                data-icon="arrow_forward"
+                >arrow_forward</span
+              >
+            </a>
+          </div>
+        </div>
+        <div class="lg:col-span-5 relative">
+          <div class="absolute inset-0 bg-primary-container/20 rounded-full blur-3xl -z-10 animate-pulse"></div>
+          <div
+            class="relative rounded-3xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700"
+          >
+            <img
+              class="w-full h-[500px] object-cover"
+              data-alt="Close up of organic bananas on a minimalist stone surface with high fashion editorial lighting and soft shadows"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKdq-8Tyr0-FUZbmh7fnF39oCFtkPtnT7Wld9hz76QA2fByReljjg3Eop0MQflQVCH4I9tIR6UvhvLgnH3o85MlWbo9sUbvAVfZAheGeMM4YnqAKVsueTIcUUHfwex4LVWupBfL5ye71bDJB_1W3PLz8sANAx_NE4gz9T4LGpjUEAoNqz9JEWenl38dMwkcUK6G0FPkZYbNgBK1awR37JTBrxq1zy0ayJCY8sXftq5GQhum4xMmri5karZHjBb0Zl-TymXtYldN854"
+            />
+            <div
+              class="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-on-surface/80 to-transparent text-white"
+            >
+              <p class="font-headline italic text-2xl">Musa acuminata</p>
+              <p class="font-label text-xs uppercase tracking-widest opacity-80">
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="px-8 md:px-24 py-24 bg-surface-container-low" id="predictor">
+        <div class="max-w-6xl mx-auto">
+          <div class="mb-16 text-center">
+            <h2 class="font-headline text-4xl mb-4">Laboratory Interface</h2>
+            <p class="text-on-surface-variant font-label uppercase tracking-widest text-sm">
+              Upload Specimen for Temporal Prediction
+            </p>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <div class="space-y-12">
+              <div
+                class="group relative bg-surface-container-lowest p-8 rounded-xl border-2 border-dashed border-outline-variant/30 hover:border-primary/50 transition-colors cursor-pointer"
+                id="drop-zone"
+              >
+                <input
+                  accept="image/*"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="image-input"
+                  type="file"
+                />
+                <div class="flex flex-col items-center text-center" id="upload-placeholder">
+                  <div
+                    class="w-20 h-20 rounded-full bg-primary-container/20 flex items-center justify-center mb-6 text-primary group-hover:scale-110 transition-transform duration-300"
+                  >
+                    <span class="material-symbols-outlined text-4xl" data-icon="add_a_photo"
+                      >add_a_photo</span
+                    >
+                  </div>
+                  <h3 class="font-bold text-xl mb-2">Capture or Upload</h3>
+                  <p class="text-on-surface-variant text-sm max-w-xs">
+                    High-resolution imagery yields the most accurate spectral results.
+                  </p>
+                </div>
+                <div class="hidden" id="image-preview-wrap">
+                  <img
+                    alt="Uploaded banana preview"
+                    class="w-full h-72 object-cover rounded-xl mb-4"
+                    id="image-preview"
+                  />
+                  <div class="flex items-center justify-between gap-4">
+                    <div>
+                      <p class="font-bold text-lg" id="file-name">banana.jpg</p>
+                      <p class="text-on-surface-variant text-sm">Image ready for analysis</p>
+                    </div>
+                    <button
+                      class="px-4 py-2 rounded-lg bg-surface-container-high text-sm font-bold text-primary hover:bg-primary-container/20 transition-colors"
+                      id="change-image-button"
+                      type="button"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-6">
+                <div class="flex justify-between items-end">
+                  <label class="font-label text-xs uppercase tracking-widest text-primary font-bold"
+                    >Temporal Context</label
+                  >
+                  <span class="text-on-surface-variant text-xs" id="projection-label"
+                    >Projection: Day 3</span
+                  >
+                </div>
+                <div class="grid grid-cols-6 gap-3" id="day-selector">
+                  <button
+                    class="day-button py-4 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all font-bold"
+                    data-day="1"
+                    type="button"
+                  >
+                    1
+                  </button>
+                  <button
+                    class="day-button py-4 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all font-bold"
+                    data-day="2"
+                    type="button"
+                  >
+                    2
+                  </button>
+                  <button
+                    class="day-button py-4 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all font-bold"
+                    data-day="3"
+                    type="button"
+                  >
+                    3
+                  </button>
+                  <button
+                    class="day-button py-4 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all font-bold"
+                    data-day="4"
+                    type="button"
+                  >
+                    4
+                  </button>
+                  <button
+                    class="day-button py-4 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all font-bold"
+                    data-day="5"
+                    type="button"
+                  >
+                    5
+                  </button>
+                  <button
+                    class="day-button py-4 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all font-bold"
+                    data-day="6"
+                    type="button"
+                  >
+                    6
+                  </button>
+                </div>
+              </div>
+
+              <div class="space-y-4">
+                <button
+                  class="w-full py-6 rounded-xl editorial-gradient text-white text-lg font-bold tracking-widest uppercase hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  id="analyze-button"
+                  type="button"
+                >
+                  <span id="analyze-label">Initiate Analysis</span>
+                  <span class="material-symbols-outlined" data-icon="shutter_speed">shutter_speed</span>
+                </button>
+                <p class="min-h-6 text-sm text-on-surface-variant" id="status-message">
+                  Select a banana image to begin.
+                </p>
+              </div>
+            </div>
+
+            <div class="relative">
+              <div class="bg-surface-container-lowest p-10 rounded-xl shadow-sm space-y-8" id="result-card">
+                <div class="flex justify-between items-start gap-4">
+                  <div>
+                    <h4 class="font-headline text-3xl text-primary" id="result-stage-heading">
+                      Awaiting Analysis
+                    </h4>
+                    <p class="text-on-surface-variant font-label text-xs uppercase tracking-widest mt-1" id="result-stage-subtitle">
+                      Upload an image to begin
+                    </p>
+                  </div>
+                  <div
+                    class="bg-primary-container px-4 py-2 rounded-full text-on-primary-container text-xs font-bold uppercase tracking-tighter"
+                    id="result-badge"
+                  >
+                    Pending
+                  </div>
+                </div>
+
+                <div class="relative w-64 h-64 mx-auto flex items-center justify-center">
+                  <svg class="w-full h-full -rotate-90">
+                    <circle
+                      class="text-surface-container-high"
+                      cx="128"
+                      cy="128"
+                      fill="transparent"
+                      r="110"
+                      stroke="currentColor"
+                      stroke-width="12"
+                    ></circle>
+                    <circle
+                      class="text-primary transition-all duration-700"
+                      cx="128"
+                      cy="128"
+                      fill="transparent"
+                      id="gauge-progress"
+                      r="110"
+                      stroke="currentColor"
+                      stroke-dasharray="691"
+                      stroke-dashoffset="691"
+                      stroke-linecap="round"
+                      stroke-width="12"
+                    ></circle>
+                  </svg>
+                  <div class="absolute flex flex-col items-center">
+                    <span class="text-5xl font-headline font-bold text-on-surface" id="score-value"
+                      >--<span class="text-2xl">%</span></span
+                    >
+                    <span class="text-xs font-label uppercase tracking-widest text-on-surface-variant"
+                      >Quality Score</span
+                    >
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 border-t border-outline-variant/20 pt-8">
+                  <div>
+                    <p
+                      class="text-xs font-label uppercase tracking-widest text-on-surface-variant mb-1"
+                    >
+                      Selected Day
+                    </p>
+                    <p class="font-bold text-lg" id="selected-day-value">--</p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-xs font-label uppercase tracking-widest text-on-surface-variant mb-1"
+                    >
+                      Raw Ripeness
+                    </p>
+                    <p class="font-bold text-lg" id="ripeness-raw-value">--</p>
+                  </div>
+                </div>
+
+                <div class="bg-primary-container/10 p-4 rounded-lg">
+                  <p class="text-sm text-on-primary-container leading-relaxed italic" id="result-note">
+                    "Results will appear here after a specimen image is uploaded and analyzed."
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-6 hidden" id="history-panel">
+                <div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm">
+                  <div class="flex items-center justify-between mb-4">
+                    <h5 class="font-bold text-lg">Recent Analyses</h5>
+                    <button
+                      class="text-sm text-primary font-bold"
+                      id="clear-history-button"
+                      type="button"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div class="space-y-3" id="history-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="px-8 md:px-24 py-32 bg-surface" id="methodology">
+        <div class="max-w-7xl mx-auto">
+          <div class="flex flex-col md:flex-row justify-between items-end gap-8 mb-24">
+            <h2 class="font-headline text-5xl md:text-6xl max-w-md">Our Analytical Protocol.</h2>
+            <p class="text-on-surface-variant max-w-sm mb-2">
+              Transparency in every byte. We fuse horticultural expertise with advanced neural
+              processing.
+            </p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+            <div class="relative group">
+              <span
+                class="text-8xl font-headline font-bold text-primary-container opacity-20 absolute -top-16 -left-3 leading-none pointer-events-none"
+                >01</span
+              >
+              <div class="relative z-10 pt-10">
+                <h4 class="font-bold text-xl mb-6 leading-tight group-hover:text-primary transition-colors">
+                  Visual Intake
+                </h4>
+                <p class="text-on-surface-variant text-sm leading-9">
+                  Our AI identifies specific surface pigmentation and textural anomalies through
+                  photographic analysis.
+                </p>
+              </div>
+            </div>
+            <div class="relative group">
+              <span
+                class="text-8xl font-headline font-bold text-primary-container opacity-20 absolute -top-16 -left-3 leading-none pointer-events-none"
+                >02</span
+              >
+              <div class="relative z-10 pt-10">
+                <h4 class="font-bold text-xl mb-6 leading-tight group-hover:text-primary transition-colors">
+                  Temporal Mapping
+                </h4>
+                <p class="text-on-surface-variant text-sm leading-9">
+                  Users define the forward-looking window, allowing our engine to simulate
+                  enzymatic acceleration.
+                </p>
+              </div>
+            </div>
+            <div class="relative group">
+              <span
+                class="text-8xl font-headline font-bold text-primary-container opacity-20 absolute -top-16 -left-3 leading-none pointer-events-none"
+                >03</span
+              >
+              <div class="relative z-10 pt-10">
+                <h4 class="font-bold text-xl mb-6 leading-tight group-hover:text-primary transition-colors">
+                  Neural Inference
+                </h4>
+                <p class="text-on-surface-variant text-sm leading-9">
+                  Data passes through a compact vision model informed by day-wise ripeness
+                  progression.
+                </p>
+              </div>
+            </div>
+            <div class="relative group">
+              <span
+                class="text-8xl font-headline font-bold text-primary-container opacity-20 absolute -top-16 -left-3 leading-none pointer-events-none"
+                >04</span
+              >
+              <div class="relative z-10 pt-10">
+                <h4 class="font-bold text-xl mb-6 leading-tight group-hover:text-primary transition-colors">
+                  Sommelier Report
+                </h4>
+                <p class="text-on-surface-variant text-sm leading-9">
+                  Receive a curated profile of the predicted ripeness score and serving window.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer
+      class="w-full py-12 px-8 flex flex-col md:flex-row justify-between items-center gap-4 mt-32 bg-[#fbfaee]"
+    >
+      <div class="font-manrope text-xs uppercase tracking-widest text-[#1b1c15]/40">
+        © 2024 The Digital Sommelier. Precision Organic Analysis.
+      </div>
+      <div class="flex gap-8">
+        <a
+          class="font-manrope text-xs uppercase tracking-widest text-[#1b1c15]/40 hover:text-[#855300] transition-all opacity-80 hover:opacity-100"
+          href="#methodology"
+          >Scientific Method</a
+        >
+        <a
+          class="font-manrope text-xs uppercase tracking-widest text-[#1b1c15]/40 hover:text-[#855300] transition-all opacity-80 hover:opacity-100"
+          href="#predictor"
+          >Privacy</a
+        >
+      </div>
+    </footer>
+
+    <script>
+      const imageInput = document.getElementById("image-input");
+      const dropZone = document.getElementById("drop-zone");
+      const uploadPlaceholder = document.getElementById("upload-placeholder");
+      const imagePreviewWrap = document.getElementById("image-preview-wrap");
+      const imagePreview = document.getElementById("image-preview");
+      const fileName = document.getElementById("file-name");
+      const changeImageButton = document.getElementById("change-image-button");
+      const analyzeButton = document.getElementById("analyze-button");
+      const analyzeLabel = document.getElementById("analyze-label");
+      const statusMessage = document.getElementById("status-message");
+      const dayButtons = Array.from(document.querySelectorAll(".day-button"));
+      const navLinks = Array.from(document.querySelectorAll(".nav-link"));
+      const projectionLabel = document.getElementById("projection-label");
+      const gaugeProgress = document.getElementById("gauge-progress");
+      const scoreValue = document.getElementById("score-value");
+      const resultStageHeading = document.getElementById("result-stage-heading");
+      const resultStageSubtitle = document.getElementById("result-stage-subtitle");
+      const resultBadge = document.getElementById("result-badge");
+      const selectedDayValue = document.getElementById("selected-day-value");
+      const ripenessRawValue = document.getElementById("ripeness-raw-value");
+      const resultNote = document.getElementById("result-note");
+      const resultCard = document.getElementById("result-card");
+      const historyPanel = document.getElementById("history-panel");
+      const historyList = document.getElementById("history-list");
+      const historyButton = document.getElementById("history-button");
+      const clearHistoryButton = document.getElementById("clear-history-button");
+      const resetButton = document.getElementById("reset-button");
+
+      const gaugeCircumference = 691;
+      let selectedDay = 1;
+      let selectedFile = null;
+      let previewUrl = null;
+      let isLoading = false;
+      let history = [];
+
+      const stageTheme = {
+        Unripe: {
+          badge: "Early Harvest",
+          note: '"Specimen remains firm and green-forward. Best reserved for staged ripening or culinary prep."',
+          color: "#2f855a",
+        },
+        "Semi-Ripe": {
+          badge: "Developing Character",
+          note: '"Specimen is entering a balanced window with moderate sweetness and structure still intact."',
+          color: "#84cc16",
+        },
+        Ripe: {
+          badge: "Peak Flavor",
+          note: '"Specimen exhibits optimal chlorophyll breakdown. Recommended for immediate consumption or premium pastry usage."',
+          color: "#d97706",
+        },
+        Overripe: {
+          badge: "Pastry Reserve",
+          note: '"Specimen has advanced sugar development and softness. Ideal for baking, blending, or reduced-waste applications."',
+          color: "#92400e",
+        },
+      };
+
+      function setStatus(message, isError = false) {
+        statusMessage.textContent = message;
+        statusMessage.className = `min-h-6 text-sm ${isError ? "text-error" : "text-on-surface-variant"}`;
+      }
+
+      function updateDaySelection(day) {
+        selectedDay = day;
+        projectionLabel.textContent = `Projection: Day ${day}`;
+        dayButtons.forEach((button) => {
+          const isActive = Number(button.dataset.day) === day;
+          button.className = isActive
+            ? "day-button py-4 rounded-lg bg-primary text-on-primary ring-4 ring-primary/10 font-bold scale-105"
+            : "day-button py-4 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all font-bold";
+        });
+      }
+
+      function setActiveNav(sectionId) {
+        navLinks.forEach((link) => {
+          const isActive = link.dataset.section === sectionId;
+          link.className = isActive
+            ? "nav-link text-[#855300] font-bold border-b-2 border-[#855300] font-label text-sm uppercase tracking-tight"
+            : "nav-link text-[#1b1c15]/60 hover:text-[#855300] transition-colors duration-300 font-label text-sm uppercase tracking-tight";
+        });
+      }
+
+      function setPreview(file) {
+        selectedFile = file;
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(file);
+        imagePreview.src = previewUrl;
+        fileName.textContent = file.name;
+        uploadPlaceholder.classList.add("hidden");
+        imagePreviewWrap.classList.remove("hidden");
+        setStatus("Image ready. Run analysis when you are ready.");
+      }
+
+      function resetUploader() {
+        selectedFile = null;
+        imageInput.value = "";
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          previewUrl = null;
+        }
+        imagePreview.removeAttribute("src");
+        uploadPlaceholder.classList.remove("hidden");
+        imagePreviewWrap.classList.add("hidden");
+        setStatus("Select a banana image to begin.");
+      }
+
+      function setLoading(loading) {
+        isLoading = loading;
+        analyzeButton.disabled = loading;
+        analyzeLabel.textContent = loading ? "Analyzing..." : "Initiate Analysis";
+      }
+
+      function updateGauge(ripeness) {
+        const clamped = Math.max(0, Math.min(1, ripeness));
+        const percent = Math.round(clamped * 100);
+        gaugeProgress.style.strokeDashoffset = String(gaugeCircumference * (1 - clamped));
+        scoreValue.innerHTML = `${percent}<span class="text-2xl">%</span>`;
+      }
+
+      function pushHistory(entry) {
+        if (entry) {
+          history.unshift(entry);
+          history = history.slice(0, 5);
+        }
+        if (!history.length) {
+          historyPanel.classList.add("hidden");
+          historyList.innerHTML = "";
+          return;
+        }
+        historyPanel.classList.remove("hidden");
+        historyList.innerHTML = history
+          .map(
+            (item) => `
+              <div class="flex items-center justify-between gap-4 rounded-lg bg-surface-container-low p-4">
+                <div>
+                  <p class="font-bold text-sm">${item.stage}</p>
+                  <p class="text-xs text-on-surface-variant">Day ${item.day} • ${item.ripeness.toFixed(3)}</p>
+                </div>
+                <span class="text-xs uppercase tracking-widest text-primary font-bold">${Math.round(item.ripeness * 100)}%</span>
+              </div>
+            `
+          )
+          .join("");
+      }
+
+      function renderResult(data, options = {}) {
+        const { saveToHistory = true } = options;
+        const theme = stageTheme[data.stage] || stageTheme.Ripe;
+        updateGauge(data.ripeness);
+        resultStageHeading.textContent = data.stage;
+        resultStageSubtitle.textContent = `Stage Analysis • Day ${data.day}`;
+        resultBadge.textContent = theme.badge;
+        selectedDayValue.textContent = String(data.day);
+        ripenessRawValue.textContent = Number(data.ripeness).toFixed(3);
+        resultNote.textContent = theme.note;
+        resultStageHeading.style.color = theme.color;
+        gaugeProgress.style.color = theme.color;
+        resultBadge.style.backgroundColor = `${theme.color}22`;
+        resultBadge.style.color = theme.color;
+        resultCard.classList.remove("result-enter");
+        void resultCard.offsetWidth;
+        resultCard.classList.add("result-enter");
+        if (saveToHistory) pushHistory(data);
+      }
+
+      function clearResultState() {
+        resultStageHeading.textContent = "Awaiting Analysis";
+        resultStageSubtitle.textContent = "Upload an image to begin";
+        resultBadge.textContent = "Pending";
+        selectedDayValue.textContent = "--";
+        ripenessRawValue.textContent = "--";
+        resultNote.textContent =
+          '"Results will appear here after a specimen image is uploaded and analyzed."';
+        resultStageHeading.style.color = "#855300";
+        gaugeProgress.style.color = "#855300";
+        gaugeProgress.style.strokeDashoffset = String(gaugeCircumference);
+        resultBadge.style.backgroundColor = "";
+        resultBadge.style.color = "";
+        scoreValue.innerHTML = `--<span class="text-2xl">%</span>`;
+        resultCard.classList.remove("result-enter");
+      }
+
+      async function analyzeImage() {
+        if (isLoading) return;
+        if (!selectedFile) {
+          setStatus("Upload a banana image before starting analysis.", true);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("image", selectedFile);
+        formData.append("day", String(selectedDay));
+
+        setLoading(true);
+        setStatus("Submitting specimen for inference...");
+
+        try {
+          const response = await fetch("/predict", {
+            method: "POST",
+            body: formData,
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || "Prediction failed.");
+          }
+          renderResult(payload);
+          setStatus(`Analysis complete. ${payload.stage} predicted for day ${payload.day}.`);
+        } catch (error) {
+          setStatus(error.message || "Unable to complete analysis.", true);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      function resetAnalysis() {
+        resetUploader();
+        updateDaySelection(1);
+        clearResultState();
+      }
+
+      imageInput.addEventListener("change", (event) => {
+        const [file] = event.target.files || [];
+        if (file) setPreview(file);
+      });
+
+      changeImageButton.addEventListener("click", () => imageInput.click());
+      analyzeButton.addEventListener("click", analyzeImage);
+      resetButton.addEventListener("click", resetAnalysis);
+
+      dayButtons.forEach((button) => {
+        button.addEventListener("click", () => updateDaySelection(Number(button.dataset.day)));
+      });
+
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.add("drop-active");
+        });
+      });
+
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.remove("drop-active");
+        });
+      });
+
+      dropZone.addEventListener("drop", (event) => {
+        const file = event.dataTransfer?.files?.[0];
+        if (file && file.type.startsWith("image/")) {
+          setPreview(file);
+        } else {
+          setStatus("Drop a valid image file to continue.", true);
+        }
+      });
+
+      historyButton.addEventListener("click", () => {
+        historyPanel.classList.toggle("hidden");
+      });
+
+      clearHistoryButton.addEventListener("click", () => {
+        history = [];
+        pushHistory();
+      });
+
+      navLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+          setActiveNav(link.dataset.section);
+        });
+      });
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setActiveNav(entry.target.id);
+            }
+          });
+        },
+        {
+          rootMargin: "-35% 0px -45% 0px",
+          threshold: 0.1,
+        }
+      );
+
+      ["predictor", "methodology"].forEach((id) => {
+        const section = document.getElementById(id);
+        if (section) observer.observe(section);
+      });
+
+      updateDaySelection(1);
+      clearResultState();
+      setActiveNav("predictor");
+    </script>
+  </body>
+</html>
