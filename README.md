@@ -4,6 +4,41 @@
 - Predicts a **continuous ripeness score** between 0 and 1  
 - Incorporates a **physics-based constraint** to guide learning  
 
+---
+
+## Run Locally
+
+This project now includes a Flask backend and a served frontend UI.
+
+1. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Start the app:
+
+```bash
+python app.py
+```
+
+3. Open the frontend in your browser:
+
+```text
+http://127.0.0.1:5000/
+```
+
+The prediction API is available at:
+
+```text
+POST /predict
+```
+
+Send:
+
+- `image` as form-data file
+- `day` as an integer from `1` to `6`
+
 Instead of treating ripeness as:
 Unripe / Ripe / Rotten
 
@@ -127,4 +162,3 @@ This is a **proof-of-concept**, not a full biological model.
 - Use real ripeness measurements instead of $$R = t$$  
 - Incorporate temperature or storage conditions  
 - Expand dataset for better generalization
-
